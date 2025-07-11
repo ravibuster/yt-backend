@@ -13,10 +13,15 @@ const uploadOnCloudinary = async (filePath) => {
     const result = await cloudinary.uploader.upload(filePath, {
       resource_type: 'auto', // Automatically detect the resource type
     })
+    if (!result || !result.secure_url) {
+      throw new Error('Failed to upload image to Cloudinary')
+    }
+    console.log('Image uploaded successfully:', result.secure_url)
     fs.unlinkSync(filePath) // Remove the file after upload
     return result
   } catch (error) {
-    console.error('Error uploading image:', error)
+    fs.unlinkSync(filePath) // Ensure the file is removed even if upload fails
+    console.error('Error uploading image:', error) 
     throw error
   }
 }

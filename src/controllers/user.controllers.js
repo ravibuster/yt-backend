@@ -1,7 +1,7 @@
 import asyncHandler from '../utils/asyncHandler.js';
 import ApiError from '../utils/ApiError.js';
 import User from '../models/user.models.js';
-import { upload } from '../middlewares/multer.middlewares.js';  
+import { uploadImage } from '../utils/cloudinary.js';  
 
 const registerUser = asyncHandler(async (req, res) => {
   // Logic for registering a user
@@ -21,16 +21,20 @@ const registerUser = asyncHandler(async (req, res) => {
     throw new ApiError(400, 'Avatar image is required');
   } 
 
-  const avatar = await User.uploadImage(avatarLocalPath);
-  const coverImage = coverImageLocalPath ? await User.uploadImage(coverImageLocalPath) : null;  
-  // Add the uploaded image URLs to the request body
-  req.body.avatar = avatar?.secure_url; // Assuming the uploadImage method returns an object
-  req.body.coverImage = coverImage?.secure_url; // Assuming the uploadImage method returns an object
 
   // save the user to the database
   if (await User.findOne({ $or: [{ email: req.body.email }, { username: req.body.username }] })) {
     throw new ApiError(400, 'User with this email already exists or username is taken');
   }
+
+  const avatar = await uploadImage(avatarLocalPath);
+  const coverImage = coverImageLocalPath ? await uploadImage(coverImageLocalPath) : null;  
+  // Add the uploaded image URLs to the request body
+  req.body.avatar = avatar?.secure_url; // Assuming the uploadImage method returns an object
+  req.body.coverImage = coverImage?.secure_url; // Assuming the uploadImage method returns an object
+
+  // Create the user in the database
+  
   const user = await User.create({
     fullName: req.body.fullName,
     username: req.body.username.toLowerCase(),

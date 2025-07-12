@@ -9,7 +9,7 @@ cloudinary.config({
 
 const uploadOnCloudinary = async (filePath) => {
   try {
-    if(!filepath) return null; // Check if filePath is provided
+    if(!filePath) return null; // Check if filePath is provided
     const result = await cloudinary.uploader.upload(filePath, {
       resource_type: 'auto', // Automatically detect the resource type
     })
@@ -26,5 +26,5 @@ const uploadOnCloudinary = async (filePath) => {
   }
 }
 
-export { uploadImage }
+export { uploadOnCloudinary as uploadImage } // Export the upload function for use in other modules
 export default cloudinary; // Export the configured cloudinary instance
